@@ -5,6 +5,8 @@ import { Switch } from "@/components/ui/switch";
 import { PageHeader } from "@/components/app/PageHeader";
 import { Panel } from "@/components/app/Panel";
 import { EmptyState } from "@/components/app/EmptyState";
+import { useAuth } from "@/lib/auth-context";
+import { useProfile } from "@/lib/data";
 import { useTheme } from "@/lib/theme";
 import { pageHead } from "@/lib/seo";
 
@@ -15,6 +17,14 @@ export const Route = createFileRoute("/_authenticated/_app/settings")({
 
 function SettingsPage() {
   const { theme, toggle } = useTheme();
+  const { user } = useAuth();
+  const profile = useProfile(user?.id);
+  const status = { student: "Student", working: "Working", other: "Other" } as const;
+  const rows = [
+    { label: "Name", value: profile.data?.full_name || "Not set" },
+    { label: "Email", value: user?.email ?? "—" },
+    { label: "Status", value: profile.data?.occupation ? status[profile.data.occupation] : "Not set" },
+  ];
   return (
     <>
       <PageHeader title="Settings" description="Your profile, how the app looks, and how your data is handled." />
@@ -32,7 +42,20 @@ function SettingsPage() {
           </div>
         </Panel>
         <Panel title="Profile">
-          <EmptyState icon={UserRound} title="Sign in to manage your profile" description="Name, email and password settings arrive with accounts in Stage 2." className="py-6" />
+          {profile.isLoading ? (
+            <p className="py-6 text-center text-sm text-muted-foreground">Loading your profile…</p>
+          ) : profile.isError ? (
+            <EmptyState icon={UserRound} title="Couldn't load your profile" description="Please refresh the page to try again." className="py-6" />
+          ) : (
+            <dl className="divide-y divide-border rounded-xl border border-border bg-surface-raised/50">
+              {rows.map((r) => (
+                <div key={r.label} className="flex items-center justify-between gap-4 px-4 py-3 text-sm">
+                  <dt className="text-muted-foreground">{r.label}</dt>
+                  <dd className="truncate font-medium">{r.value}</dd>
+                </div>
+              ))}
+            </dl>
+          )}
         </Panel>
       </div>
       <Panel title="Privacy notice">

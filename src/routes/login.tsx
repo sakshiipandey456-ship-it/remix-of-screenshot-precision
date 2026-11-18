@@ -26,6 +26,14 @@ function LoginPage() {
   const [busy, setBusy] = useState(false);
 
   const goNext = () => navigate({ to: safeRedirect(redirect), replace: true });
+  // Email links return here (a public page) so the session is restored before opening a private page.
+  // An expired or already-used link comes back with an error in the address instead of a session.
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.hash.slice(1) || window.location.search);
+    const desc = params.get("error_description");
+    if (desc) setFormError(/expired|invalid/i.test(desc) ? "That confirmation link has expired or was already used. Sign in below, or create your account again to get a new link." : desc.replace(/\+/g, " "));
+  }, []);
+
   useEffect(() => {
     if (ready && user) goNext();
     // eslint-disable-next-line react-hooks/exhaustive-deps

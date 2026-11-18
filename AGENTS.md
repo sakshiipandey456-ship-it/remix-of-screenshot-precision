@@ -35,3 +35,5 @@ use the editor.
 - Dark theme is the default via `class="dark"` on `<html>`; `src/lib/theme.ts` owns the toggle and the pre-paint init script so the saved theme never flashes.
 - Charts use Recharts (already bundled with shadcn) instead of Chart.js, to stay on the React component model.
 - Any sample numbers shown on marketing pages are hard-coded in the component and labelled "Sample data"; they are never stored as user records.
+- Auth email links (sign-up confirmation) return to the public `/login?redirect=…` page, never straight to a private page, so the session is restored before the sign-in gate runs; `/login` then forwards via `safeRedirect`.
+- Profiles are created by the `on_auth_user_created` trigger on `auth.users` (calls `public.handle_new_user`); app code only reads/updates the row, never inserts it.

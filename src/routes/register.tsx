@@ -37,7 +37,7 @@ function RegisterPage() {
     const { data, error } = await supabase.auth.signUp({
       email: result.data.email,
       password: result.data.password,
-      options: { emailRedirectTo: window.location.origin + "/dashboard", data: { full_name: result.data.name } },
+      options: { emailRedirectTo: `${window.location.origin}/login?redirect=${encodeURIComponent("/dashboard")}`, data: { full_name: result.data.name } },
     });
     setBusy(false);
     if (error) {
